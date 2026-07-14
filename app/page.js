@@ -61,6 +61,25 @@ export default async function Page() {
               </a>
             </section>
 
+            {snapshot.world_stories && snapshot.world_stories.length > 0 && (
+              <section>
+                <div className="eyebrow">World Desk</div>
+                <div className="stories">
+                  {snapshot.world_stories.map((s, i) => (
+                    <div className="story" key={i}>
+                      <div className="story-num mono">W{i + 1}</div>
+                      <div>
+                        <h3>{s.title}</h3>
+                        <p>{s.one_liner}</p>
+                        <div className="src-line">{s.category ? s.category + " · " : ""}{s.source}</div>
+                        <a className="readlink" href={s.url} target="_blank" rel="noopener noreferrer">Read →</a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
             <section>
               <div className="eyebrow">Five Dispatches</div>
               <div className="stories">
