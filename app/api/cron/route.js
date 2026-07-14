@@ -35,6 +35,7 @@ export async function GET(request) {
 
     const snapshot = await insertSnapshot({
       mainHeadline: headlines.main_headline,
+      worldStories: headlines.world_stories,
       stories: headlines.stories,
       stock,
       podcast,
