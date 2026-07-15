@@ -1,7 +1,7 @@
 import { ensureSchema, getLatestSnapshot, insertSnapshot } from "../../../lib/db";
 import { fetchHeadlines, fetchStock, fetchPodcast, fetchTrends } from "../../../lib/anthropic";
 
-export const maxDuration = 60; // seconds — web search + several model calls can take a little while
+export const maxDuration = 300; // seconds — Vercel Hobby's actual ceiling (Fluid Compute); web search + several model calls in parallel needs real headroom
 const TRENDS_TTL_MS = 48 * 60 * 60 * 1000;
 const STOCK_TTL_MS = 24 * 60 * 60 * 1000;
 const PODCAST_TTL_MS = 24 * 60 * 60 * 1000;
