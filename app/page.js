@@ -132,7 +132,7 @@ export default async function Page() {
               <div className="card">
                 <div className="tag-row">
                   <span className="tag">Featured Position</span>
-                  <span className="stale-badge">updated {hoursAgo(snapshot.created_at)}h ago</span>
+                  <span className="stale-badge">updated {hoursAgo(snapshot.stock_created_at)}h ago</span>
                 </div>
                 <div className="ticker-symbol">{snapshot.stock.ticker}{snapshot.stock.exchange ? ` · ${snapshot.stock.exchange}` : ""}</div>
                 <h3>{snapshot.stock.headline}</h3>
@@ -143,7 +143,7 @@ export default async function Page() {
               <div className="card">
                 <div className="tag-row">
                   <span className="tag">Worth Listening</span>
-                  <span className="stale-badge">updated {hoursAgo(snapshot.created_at)}h ago</span>
+                  <span className="stale-badge">updated {hoursAgo(snapshot.podcast_created_at)}h ago</span>
                 </div>
                 <h3>{snapshot.podcast.name}</h3>
                 <div className="meta">{snapshot.podcast.network} · &quot;{snapshot.podcast.episode_title}&quot;</div>
