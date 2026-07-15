@@ -5,10 +5,23 @@ export const dynamic = "force-dynamic"; // always read fresh from the DB, never 
 function fmt(dt) {
   return new Date(dt).toLocaleString("en-GB", {
     weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
+    timeZone: "Asia/Jerusalem",
   });
 }
 function hoursAgo(dt) {
   return Math.max(0, Math.round((Date.now() - new Date(dt).getTime()) / 3600000));
+}
+function relativeTime(iso) {
+  if (!iso) return null;
+  const then = new Date(iso).getTime();
+  if (isNaN(then)) return null;
+  const diffMin = Math.round((Date.now() - then) / 60000);
+  if (diffMin < 1) return "just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffH = Math.round(diffMin / 60);
+  if (diffH < 24) return `${diffH}h ago`;
+  const diffD = Math.round(diffH / 24);
+  return `${diffD}d ago`;
 }
 
 export default async function Page() {
@@ -28,7 +41,10 @@ export default async function Page() {
           <div className="wordmark">DISPATCH<span>.</span></div>
           <div className="subtag">Tel Aviv &amp; The World / Markets &amp; Power</div>
         </div>
-        <span id="datetime" className="mono">{fmt(new Date())}</span>
+        <div style={{textAlign: "right"}}>
+          <span id="datetime" className="mono">{fmt(new Date())}</span>
+          <div className="subtag" style={{marginTop: 2}}>Tel Aviv time</div>
+        </div>
       </header>
 
       <main>
@@ -54,7 +70,10 @@ export default async function Page() {
               </div>
               <h1>{snapshot.main_headline.title}</h1>
               <p>{snapshot.main_headline.dek}</p>
-              <div className="src-line">{snapshot.main_headline.category} · {snapshot.main_headline.source}</div>
+              <div className="src-line">
+                {snapshot.main_headline.category} · {snapshot.main_headline.source}
+                {relativeTime(snapshot.main_headline.published_at) ? " · " + relativeTime(snapshot.main_headline.published_at) : ""}
+              </div>
               <br />
               <a className="readlink" href={snapshot.main_headline.url} target="_blank" rel="noopener noreferrer">
                 Read the full story →
@@ -63,7 +82,10 @@ export default async function Page() {
 
             {snapshot.world_stories && snapshot.world_stories.length > 0 && (
               <section>
-                <div className="eyebrow">World Desk</div>
+                <div className="section-header">
+                  <div className="eyebrow">World Desk</div>
+                  <span className="stale-badge">updated {hoursAgo(snapshot.created_at)}h ago</span>
+                </div>
                 <div className="stories">
                   {snapshot.world_stories.map((s, i) => (
                     <div className="story" key={i}>
@@ -71,7 +93,10 @@ export default async function Page() {
                       <div>
                         <h3>{s.title}</h3>
                         <p>{s.one_liner}</p>
-                        <div className="src-line">{s.category ? s.category + " · " : ""}{s.source}</div>
+                        <div className="src-line">
+                          {s.category ? s.category + " · " : ""}{s.source}
+                          {relativeTime(s.published_at) ? " · " + relativeTime(s.published_at) : ""}
+                        </div>
                         <a className="readlink" href={s.url} target="_blank" rel="noopener noreferrer">Read →</a>
                       </div>
                     </div>
@@ -81,7 +106,10 @@ export default async function Page() {
             )}
 
             <section>
-              <div className="eyebrow">Five Dispatches</div>
+              <div className="section-header">
+                <div className="eyebrow">Five Dispatches</div>
+                <span className="stale-badge">updated {hoursAgo(snapshot.created_at)}h ago</span>
+              </div>
               <div className="stories">
                 {snapshot.stories.map((s, i) => (
                   <div className="story" key={i}>
@@ -89,7 +117,10 @@ export default async function Page() {
                     <div>
                       <h3>{s.title}</h3>
                       <p>{s.one_liner}</p>
-                      <div className="src-line">{s.category ? s.category + " · " : ""}{s.source}</div>
+                      <div className="src-line">
+                        {s.category ? s.category + " · " : ""}{s.source}
+                        {relativeTime(s.published_at) ? " · " + relativeTime(s.published_at) : ""}
+                      </div>
                       <a className="readlink" href={s.url} target="_blank" rel="noopener noreferrer">Read →</a>
                     </div>
                   </div>
@@ -99,15 +130,21 @@ export default async function Page() {
 
             <div className="split">
               <div className="card">
-                <span className="tag">Featured Position</span>
-                <div className="ticker-symbol">{snapshot.stock.ticker}</div>
+                <div className="tag-row">
+                  <span className="tag">Featured Position</span>
+                  <span className="stale-badge">updated {hoursAgo(snapshot.created_at)}h ago</span>
+                </div>
+                <div className="ticker-symbol">{snapshot.stock.ticker}{snapshot.stock.exchange ? ` · ${snapshot.stock.exchange}` : ""}</div>
                 <h3>{snapshot.stock.headline}</h3>
                 <div className="meta">{snapshot.stock.company} · via {snapshot.stock.magazine_source}</div>
                 <p>{snapshot.stock.summary}</p>
                 <a className="readlink" href={snapshot.stock.url} target="_blank" rel="noopener noreferrer">Read the analysis →</a>
               </div>
               <div className="card">
-                <span className="tag">Worth Listening</span>
+                <div className="tag-row">
+                  <span className="tag">Worth Listening</span>
+                  <span className="stale-badge">updated {hoursAgo(snapshot.created_at)}h ago</span>
+                </div>
                 <h3>{snapshot.podcast.name}</h3>
                 <div className="meta">{snapshot.podcast.network} · &quot;{snapshot.podcast.episode_title}&quot;</div>
                 <p>{snapshot.podcast.summary}</p>
@@ -118,7 +155,7 @@ export default async function Page() {
             <section>
               <div className="section-header">
                 <div className="eyebrow">Signal Check</div>
-                <span className="stale-badge">refreshes every 48h</span>
+                <span className="stale-badge">updated {hoursAgo(snapshot.trends_created_at)}h ago · refreshes every 48h</span>
               </div>
               {snapshot.trends.map((t, i) => (
                 <div className="trend" key={i}>
